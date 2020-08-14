@@ -7,7 +7,7 @@ import CreateDelivery from './pages/CreateDelivery';
 import ListDelivery from './pages/ListDelivery';
 import MapDelivery from './pages/MapDelivery';
 
-import './index.css';
+import './assets/styles/global.css';
 
 import * as serviceWorker from './serviceWorker';
 
