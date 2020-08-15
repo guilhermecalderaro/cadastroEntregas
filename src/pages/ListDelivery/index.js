@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 import Table from 'react-bootstrap/Table';
 import Modal from 'react-bootstrap/Modal';
@@ -6,6 +7,8 @@ import Button from 'react-bootstrap/Button';
 
 import MapForm from '../../components/MapForm';
 import deliveriesRepository from '../../repositories/deliveries';
+
+import './styles.css';
 
 function ListDelivery() {
   const [deliveries, setDeliveries] = useState(null);
@@ -19,7 +22,7 @@ function ListDelivery() {
   const handleSubmit = (e) => {
     e.preventDefault();
     // eslint-disable-next-line no-console
-    console.log(e.target);
+    console.log(e);
     setShow(false);
   };
 
@@ -35,9 +38,9 @@ function ListDelivery() {
   }, []);
 
   return (
-    <div className="ListDelivery">
+    <div className="listDelivery">
       <header className="ListDelivery-header">
-        ListDelivery
+        DeliveryList
       </header>
       <Button
         variant="primary"
@@ -45,8 +48,6 @@ function ListDelivery() {
         type="submit"
         className="btn"
       >
-        <span>+</span>
-        {' '}
         Adicionar Entrega
       </Button>
       <Table striped bordered hover responsive>
@@ -64,18 +65,20 @@ function ListDelivery() {
           {
             deliveries !== null
               ? deliveries.map((delivery, index) => (
-                <tr key={`${delivery.client}_${delivery.date}_${delivery.id}`}>
+                <tr key={`${delivery.name}_${delivery.date}_${delivery.id}`}>
                   <td
-                    key={`${delivery.client}_${delivery.date}`}
+                    key={`${delivery.name}_${delivery.date}`}
                   >
                     {index}
                   </td>
-                  <td key={`${delivery.client}_name`}>{delivery.client}</td>
+                  <td key={`${delivery.name}_name`}>{delivery.name}</td>
                   <td key={`${delivery.date}_date`}>{delivery.date}</td>
                   <td key={`${delivery.origin}_origin`}>{delivery.origin}</td>
-                  <td key={`${delivery.client}_${delivery.date}_${delivery.id}_link`}>{delivery.destination}</td>
+                  <td key={`${delivery.name}_${delivery.date}_${delivery.id}_link`}>{delivery.destination}</td>
                   {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                  <td key={delivery.destination}><a href="#">&gt;</a></td>
+                  <td key={delivery.destination}>
+                    <Link to={`delivery/map/${delivery.id}`}>&gt;</Link>
+                  </td>
                 </tr>
               ))
               : (
@@ -98,6 +101,7 @@ function ListDelivery() {
         </Modal.Header>
         <MapForm
           onSubmit={handleSubmit}
+          handleClose={handleClose}
         />
       </Modal>
 

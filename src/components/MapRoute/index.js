@@ -1,14 +1,12 @@
 import React, { useState, useCallback } from 'react';
 import {
   GoogleMap,
-  useLoadScript,
   DirectionsService,
   DirectionsRenderer,
 } from '@react-google-maps/api';
 
 import PropTypes from 'prop-types';
 
-import config from '../../config';
 import './styles.css';
 
 const containerStyle = {
@@ -26,20 +24,8 @@ const options = {
   zoomControl: true,
 };
 
-const libraries = ['places'];
-
-// eslint-disable-next-line react/prop-types
 function MapRoute({ directionsServiceOptions }) {
   const [response, setResponse] = useState(null);
-  //  const [directionsServiceOptions, setDirectionsServiceOptions] = useState({
-  //    destination: { lat: -29.6979826, lng: -52.4406202 },
-  //    origin: { lat: -29.7216174, lng: -52.4329495 },
-  //    travelMode: 'DRIVING',
-  //  });
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: config.GOOGLE_MAPS_API_KEY,
-    libraries,
-  });
 
   const directionsCallback = useCallback((event) => {
     if (event !== null) {
@@ -54,9 +40,6 @@ function MapRoute({ directionsServiceOptions }) {
     }
   }, []);
 
-  if (loadError) return 'Error';
-  if (!isLoaded) return 'Loading...';
-
   return (
     <div className="map">
       <GoogleMap
@@ -66,23 +49,18 @@ function MapRoute({ directionsServiceOptions }) {
         options={options}
       >
 
-        {
-          (directionsServiceOptions.destination.lat !== ''
-            && directionsServiceOptions.destination.lng !== '') && (
-              <DirectionsService
-                options={directionsServiceOptions}
-                callback={directionsCallback}
-                onLoad={(directionsService) => {
-                  // eslint-disable-next-line no-console
-                  console.log('DirectionsService onLoad directionsService: ', directionsService);
-                }}
-                onUnmount={(directionsService) => {
-                  // eslint-disable-next-line no-console
-                  console.log('DirectionsService onUnmount directionsService: ', directionsService);
-                }}
-              />
-          )
-        }
+        <DirectionsService
+          options={directionsServiceOptions}
+          callback={directionsCallback}
+          onLoad={(directionsService) => {
+            // eslint-disable-next-line no-console
+            console.log('DirectionsService onLoad directionsService: ', directionsService);
+          }}
+          onUnmount={(directionsService) => {
+            // eslint-disable-next-line no-console
+            console.log('DirectionsService onUnmount directionsService: ', directionsService);
+          }}
+        />
 
         {
             response !== null && (

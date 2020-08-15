@@ -2,8 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
-import Home from './pages/Home';
-import CreateDelivery from './pages/CreateDelivery';
 import ListDelivery from './pages/ListDelivery';
 import MapDelivery from './pages/MapDelivery';
 
@@ -21,10 +19,8 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/delivery/create" component={CreateDelivery} />
-        <Route path="/delivery/list" component={ListDelivery} />
-        <Route path="/delivery/map" component={MapDelivery} />
+        <Route exact path="/" component={ListDelivery} />
+        <Route path="/delivery/map/:id" component={MapDelivery} />
         <Route component={Pagina404} />
       </Switch>
     </BrowserRouter>

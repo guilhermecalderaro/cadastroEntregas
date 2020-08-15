@@ -1,12 +1,16 @@
 /* eslint-disable react/jsx-props-no-spreading */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+
 import PropTypes from 'prop-types';
 
 import PlacesAutocomplete, {
   geocodeByAddress,
   getLatLng,
 } from 'react-places-autocomplete';
+
+import deliveriesRepository from '../../repositories/deliveries';
 
 const initialValues = {
   name: '',
@@ -26,6 +30,7 @@ const googleInput = ({
         placeholder: 'Search Places ...',
         className: 'form-control form-control-lg',
       })}
+      required
     />
     <div>
       {loading && <div>Loading...</div>}
@@ -42,6 +47,7 @@ const googleInput = ({
             {...getSuggestionItemProps(suggestion, {
               className,
               style,
+              key: `id_${suggestions.description}`,
             })}
           >
             <span key={`${suggestion.description}`}>{suggestion.description}</span>
@@ -52,7 +58,8 @@ const googleInput = ({
   </div>
 );
 
-const MapForm = ({ onSubmit }) => {
+const MapForm = ({ handleClose }) => {
+  const history = useHistory();
   const [delivery, setDelivery] = useState(initialValues);
 
   function setValue(key, value) {
@@ -71,41 +78,40 @@ const MapForm = ({ onSubmit }) => {
 
   const handleSelectOrigin = (address) => {
     geocodeByAddress(address)
-      .then((results) => {
-        const originName = results[0].formatted_address;
-        setDelivery({
-          ...delivery,
-          origin: originName,
-        });
-        return getLatLng(results[0]);
-      })
-      .then((originLatLng) => {
-        setDelivery({ ...delivery, originLatLng });
-      })
+      .then((results) => getLatLng(results[0]))
+      .then((originLatLng) => setDelivery({
+        ...delivery,
+        origin: address,
+        originLatLng,
+      }))
       .catch((error) => console.error('Error', error));
   };
 
-  const handleSelectDestination = (address) => {
-    geocodeByAddress(address)
-      .then((results) => {
-        const destination = results[0].formatted_address;
-        setDelivery({ ...delivery, destination });
-        return getLatLng(results[0]);
-      })
-      .then((destinationLatLng) => {
-        setDelivery({ ...delivery, destinationLatLng });
-      })
+  const handleSelectDestination = async (address) => {
+    await geocodeByAddress(address)
+      .then((results) => getLatLng(results[0]))
+      .then((destinationLatLng) => setDelivery({
+        ...delivery,
+        destination: address,
+        destinationLatLng,
+      }))
       .catch((error) => console.error('Error', error));
   };
 
   return (
     <div className="m-2">
       <form
-        onSubmit={onSubmit}
-        // onSubmit={(e) => {
-        //   e.preventDefault();
-        //   console.log(e.target[0].value, e.target[1].value, e.target[2].value, e.target[3].value, e.target[4].value);
-        // }}
+        // onSubmit={onSubmit}
+        onSubmit={(e) => {
+          e.preventDefault();
+          deliveriesRepository.create(delivery)
+            .then((resposta) => {
+              handleClose();
+              console.log(resposta);
+              history.go(0);
+            })
+            .catch((err) => console.warn(err));
+        }}
       >
         <div className="form-row">
           <div className="form-group col">
@@ -118,6 +124,7 @@ const MapForm = ({ onSubmit }) => {
               placeholder="João da Silva"
               value={delivery.name}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -130,6 +137,7 @@ const MapForm = ({ onSubmit }) => {
               className="form-control form-control-lg"
               value={delivery.date}
               onChange={handleChange}
+              required
             />
           </div>
 
@@ -157,8 +165,8 @@ const MapForm = ({ onSubmit }) => {
               name="originLatLng"
               type="text"
               className="form-control"
-              value={`${delivery.originLatLng.lat}, ${delivery.originLatLng.lng}`}
-              onChange={handleChange}
+              value={`Coordenadas: ${delivery.originLatLng.lat}, ${delivery.originLatLng.lng}`}
+              required
               readOnly
             />
           </div>
@@ -187,8 +195,8 @@ const MapForm = ({ onSubmit }) => {
               name="destinationLatLng"
               type="text"
               className="form-control"
-              value={`${delivery.destinationLatLng.lat}, ${delivery.destinationLatLng.lng}`}
-              onChange={handleChange}
+              value={`Coordenadas: ${delivery.destinationLatLng.lat}, ${delivery.destinationLatLng.lng}`}
+              required
               readOnly
             />
           </div>
@@ -203,7 +211,7 @@ const MapForm = ({ onSubmit }) => {
 };
 
 MapForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  handleClose: PropTypes.func.isRequired,
 };
 
 export default MapForm;
